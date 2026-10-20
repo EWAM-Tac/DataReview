@@ -1,0 +1,92 @@
+# Extensible keyword rules for catalog profile inference.
+# The Notion CSV is a living reference — add rows freely; extend keywords here
+# when a new family / modality vocabulary appears (no scorer code changes needed).
+
+modality_keywords:
+  tactile:
+    - tactile
+    - gelsight
+    - digit
+    - gelslim
+    - taxel
+    - 压力
+    - wrench
+    - 触觉
+    - deform
+  force:
+    - 六轴
+    - atia
+    - wrench
+    - force/torque
+    - 力矩
+    - force-field
+    - forcecapture
+  image:
+    - rgb
+    - 视频
+    - 视觉
+    - image
+    - ego
+    - exo
+    - camera
+    - rgb-d
+    - rgbd
+  hand_pose:
+    - mano
+    - 手姿态
+    - hand pose
+    - 关节
+    - mocap
+    - 手运动
+    - hand motion
+  language:
+    - 语言
+    - 文字
+    - instruction
+    - caption
+    - 文本
+  action:
+    - 状态/动作
+    - state/action
+    - action
+    - 轨迹
+    - teleop
+    - demonstration
+  state:
+    - 状态
+    - state
+    - proprio
+
+# content-tag substrings in the 「包含内容」 column
+content_tags:
+  action: ["动作"]
+  tactile: ["触觉"]
+
+# family rules are evaluated in order; first match wins
+families:
+  - id: static_grasp
+    any:
+      - 静态抓取
+      - 静态手型
+      - grasp prior
+      - dexgraspnet
+      - dexgrasp anything
+    set:
+      expects_sequence: false
+      expects_action: false
+  - id: tactile_repr
+    any:
+      - 接触配对
+      - contact pair
+      - touch and go
+      - tvl
+      - ssvtp
+      - 材料
+    set:
+      expects_contact_pairs: true
+  - id: human_hoi
+    subject_only_human: true
+  - id: robot_vla
+    subject_only_robot: true
+  - id: mixed
+    fallback: true

@@ -1,0 +1,103 @@
+# Role patterns for heterogeneous tactile / dexterous datasets
+# (SharpaDex, T-Rex, FTP, GelSight/DIGIT dumps, human HOI, etc.)
+
+roles:
+  state:
+    - "^observation\\.state$"
+    - "^observation\\.states?$"
+    - "^state$"
+    - "^states$"
+    - "^obs\\.state$"
+    - "^proprio"
+    - "^qpos$"
+    - "observation/state"
+  state_tcp:
+    - "^observation\\.state\\.tcp"
+    - "^observation\\.tcp"
+    - "^observation\\..*ee_pose"
+    - "^observation\\..*tcp_pose"
+    - "^observation\\..*end_effector"
+  state_torque:
+    - "joint_torque"
+    - "(^|[._/])torque([._/]|$)"
+    - "(^|[._/])effort([._/]|$)"
+  action:
+    - "^action$"
+    - "^actions$"
+    - "^action\\.joints?$"
+    - "abs_actions"
+    - "action/joint"
+  action_tcp:
+    - "^action\\.tcp"
+    - "^action\\..*ee"
+    - "^action\\..*tcp"
+    - "action/ee"
+  tactile:
+    - "^observation\\.tactile$"
+    - "^observation\\.tactiles?"
+    - "^tactile$"
+    - "tactile_force"
+    - "tactile_signal"
+    - "tactile_taxel"
+    - "taxel"
+    - "pressure"
+    - "uskin"
+    - "vitai"
+    - "mctac"
+    - "observation/tactile"
+  force:
+    # 6-axis / wrench — tactile proxy when vector tactile absent
+    # (avoid short substrings like "ati" matching inside "observation")
+    - "^force$"
+    - "^forces$"
+    - "wrench"
+    - "ft_sensor"
+    - "force_torque"
+    - "force-torque"
+    - "(^|[._/])ati([._/]|$)"
+    - "(^|[._/])axia([._/]|$)"
+    - "observation\\.force"
+    - "observation\\.wrench"
+  tactile_image:
+    - "tactile_deform"
+    - "tactile_raw"
+    - "gelsight"
+    - "gelslim"
+    - "digit"
+    - "tacum"
+    - "freetacman"
+    - "exumi"
+    - "vitam"
+  image:
+    - "^observation\\.images\\."
+    - "^observation\\.image\\."
+    - "^images?\\."
+    - "^camera"
+    - "rgb"
+    - "ego"
+    - "wrist"
+    - "head_"
+    - "front"
+  hand_pose:
+    - "mano"
+    - "hand_pose"
+    - "hand_joints"
+    - "keypoints"
+    - "skeleton"
+  timestamp:
+    - "^timestamp$"
+    - "^time$"
+  frame_index:
+    - "^frame_index$"
+  episode_index:
+    - "^episode_index$"
+  task_index:
+    - "^task_index$"
+  subtask_index:
+    - "^subtask_index$"
+    - "^subtask$"
+  language:
+    - "instruction"
+    - "caption"
+    - "language"
+    - "task_description"
