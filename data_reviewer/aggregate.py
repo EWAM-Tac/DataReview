@@ -12,7 +12,7 @@ from .metrics import SCORERS
 from .profile import DatasetProfile, infer_profile_from_text
 from .types import DimensionScore, ReviewReport
 
-GATE_DIMENSIONS = {"integrity"}
+GATE_DIMENSIONS = {"integrity", "completeness"}
 
 
 def aggregate_scores(dimensions: list[DimensionScore]) -> tuple[float | None, str, list[str]]:
@@ -24,10 +24,8 @@ def aggregate_scores(dimensions: list[DimensionScore]) -> tuple[float | None, st
     scores = np.array([float(d.score) for d in usable], dtype=np.float64)
     overall = float(np.average(scores, weights=weights))
 
-    if gates_failed:
+    if gates_failed or any(d.status == "fail" for d in usable):
         status = "fail"
-    elif any(d.status == "fail" for d in usable):
-        status = "warn"
     elif any(d.status == "warn" for d in usable):
         status = "warn"
     else:

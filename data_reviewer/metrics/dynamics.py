@@ -47,14 +47,16 @@ def score_dynamics(
         diversity = float(means.std(axis=0).mean() / (np.abs(means).mean() + 1e-6))
         diversity_s = clip01(diversity * 5.0)  # soft saturation
     else:
-        diversity_s = 0.5
+        diversity_s = 0.25
 
     active_s = safe_mean(active)
     # mild jerk: prefer some smoothness; huge jerk penalized
     jerk_s = clip01(1.0 - max(0.0, safe_mean(jerks) - 1.0) / 5.0)
 
     score = float(0.5 * active_s + 0.25 * jerk_s + 0.25 * diversity_s)
-    status = "ok" if score >= 0.55 else ("warn" if score >= 0.35 else "fail")
+    status = "ok" if score >= 0.75 else ("warn" if score >= 0.55 else "fail")
+    if active_s < 0.5:
+        status = "fail"
     notes = []
     if active_s < 0.4:
         notes.append(f"high idle fraction on {label} (active={active_s:.2f})")

@@ -104,8 +104,8 @@ def _probe_video(path: str, n_frames_expect: int) -> dict[str, Any]:
             out["len_ratio"] = float(out["n_frames"]) / n_frames_expect
         return out
 
-    # Last resort: non-empty file counts as weak OK
-    out.update({"backend": "filesize", "ok": True, "weak": True})
+    # A non-empty file is not evidence that frames decode.
+    out.update({"backend": "filesize", "ok": False, "weak": True, "error": "undecoded"})
     return out
 
 
@@ -177,18 +177,22 @@ def score_integrity(
 
     notes = []
     status = "ok"
-    if finite_s < 0.999:
+    if finite_s < 1.0:
         status = "fail"
         notes.append(f"non-finite values present (finite_ratio={finite_s:.6f})")
-    if vid_s is not None and vid_s < 0.9:
-        status = "fail" if vid_s < 0.5 else "warn"
+    if const_s < 0.5:
+        status = "fail"
+        notes.append(f"near-constant channels (nonconstant={const_s:.2f})")
+    elif const_s < 0.9 and status == "ok":
+        status = "warn"
+        notes.append(f"some channels barely move (nonconstant={const_s:.2f})")
+    if vid_s is not None and vid_s < 1.0:
+        status = "fail"
         notes.append(f"video probe ok rate {vid_s:.2f} (n={probed})")
-    if ts_s is not None and ts_s < 0.7:
-        status = "warn" if status == "ok" else status
+    if ts_s is not None and ts_s < 0.85:
+        status = "fail"
         notes.append(f"timestamp quality {ts_s:.2f}")
-
-    # Gate: fail if score very low
-    if score < 0.5:
+    if score < 0.8:
         status = "fail"
 
     return DimensionScore(

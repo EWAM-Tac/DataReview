@@ -110,7 +110,7 @@ def score_consistency(
         )
 
     score = float(np.mean(parts))
-    status = "ok" if score >= 0.55 else ("warn" if score >= 0.35 else "fail")
+    status = "ok" if score >= 0.75 else ("warn" if score >= 0.55 else "fail")
     return DimensionScore(
         id="consistency",
         name="Cross-modal consistency",

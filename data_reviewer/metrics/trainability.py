@@ -23,7 +23,7 @@ def score_trainability(
     splits = dataset_meta.get("splits") or {}
     has_split = bool(splits)
     evidence["has_splits"] = has_split
-    split_s = 1.0 if has_split else 0.6
+    split_s = 1.0 if has_split else 0.35
     if not has_split:
         notes.append("no splits declared in info.json")
 
@@ -40,7 +40,7 @@ def score_trainability(
             mu = x.mean(axis=0)
             sd = x.std(axis=0) + 1e-6
             z = np.abs((x - mu) / sd)
-            zs.append(float((z > 8).mean()))
+            zs.append(float((z > 6).mean()))
         outlier_frac = safe_mean(zs)
         outlier_s = clip01(1.0 - outlier_frac * 20)
         evidence["outlier_frame_frac"] = outlier_frac
@@ -60,7 +60,7 @@ def score_trainability(
         len_s = 0.0
 
     score = float(0.3 * split_s + 0.35 * idle_s + 0.2 * outlier_s + 0.15 * len_s)
-    status = "ok" if score >= 0.55 else ("warn" if score >= 0.35 else "fail")
+    status = "ok" if score >= 0.75 else ("warn" if score >= 0.55 else "fail")
     return DimensionScore(
         id="trainability",
         name="Trainability / leakage risk",

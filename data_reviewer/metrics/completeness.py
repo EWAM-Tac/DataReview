@@ -63,7 +63,13 @@ def score_completeness(
     if img_score is not None and img_score < 0.95:
         notes.append(f"image video coverage {img_score:.2f}")
 
-    status = "ok" if score >= 0.7 else ("warn" if score >= 0.4 else "fail")
+    status = "ok" if score >= 0.9 else ("warn" if score >= 0.75 else "fail")
+    if short_frac > 0 or align_score < 1.0:
+        status = "fail"
+    if img_score is not None and img_score < 1.0:
+        status = "fail"
+    if ti_score is not None and ti_score < 1.0:
+        status = "fail"
     return DimensionScore(
         id="completeness",
         name="Completeness",

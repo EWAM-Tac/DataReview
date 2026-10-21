@@ -62,6 +62,7 @@ class LeRobotDatasetView:
         self.info = json.loads((self.meta_dir / "info.json").read_text())
         self.features: dict[str, Any] = self.info.get("features", {})
         self.fps = float(self.info.get("fps") or 30)
+        self.video_root = self._read_video_root()
         patterns = load_role_config(role_config)
         self.role_map = map_features_to_roles(list(self.features.keys()), patterns)
         self.coverage = summarize_role_coverage(self.role_map)
@@ -102,7 +103,18 @@ class LeRobotDatasetView:
             path = self.root / f"data/chunk-{chunk:03d}/episode_{ep:06d}.parquet"
         return path if path.exists() else None
 
-    def video_path(self, key: str, ep: int) -> Path | None:
+    def _read_video_root(self) -> Path | None:
+        path = self.meta_dir / "adjust.json"
+        if not path.is_file():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        raw = payload.get("video_root") if isinstance(payload, dict) else None
+        return Path(raw) if raw else None
+
+    def _video_candidate(self, root: Path, key: str, ep: int) -> Path:
         pattern = self.info.get(
             "video_path",
             "videos/chunk-{episode_chunk:03d}/{video_key}/episode_{episode_index:06d}.mp4",
@@ -110,12 +122,19 @@ class LeRobotDatasetView:
         chunk_size = int(self.info.get("chunks_size") or 1000)
         chunk = ep // chunk_size
         try:
-            path = self.root / pattern.format(
-                episode_chunk=chunk, episode_index=ep, video_key=key
-            )
+            return root / pattern.format(episode_chunk=chunk, episode_index=ep, video_key=key)
         except Exception:
-            path = self.root / f"videos/chunk-{chunk:03d}/{key}/episode_{ep:06d}.mp4"
-        return path if path.exists() else None
+            return root / f"videos/chunk-{chunk:03d}/{key}/episode_{ep:06d}.mp4"
+
+    def video_path(self, key: str, ep: int) -> Path | None:
+        path = self._video_candidate(self.root, key, ep)
+        if path.is_file():
+            return path
+        if self.video_root is not None:
+            shared = self._video_candidate(self.video_root, key, ep)
+            if shared.is_file():
+                return shared
+        return None
 
     def iter_episodes(
         self,

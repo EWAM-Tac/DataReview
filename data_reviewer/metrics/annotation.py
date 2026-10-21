@@ -70,7 +70,7 @@ def score_annotation(
     notes = []
     if lang_ok and safe_mean(lang_ok) < 0.9:
         notes.append("some episodes lack language instructions")
-    status = "ok" if score >= 0.6 else ("warn" if score >= 0.4 else "fail")
+    status = "ok" if score >= 0.8 else ("warn" if score >= 0.6 else "fail")
     return DimensionScore(
         id="annotation",
         name="Annotation / semantics",

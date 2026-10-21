@@ -151,14 +151,14 @@ def score_tactile(
         return DimensionScore(
             "tactile",
             "Tactile usefulness",
-            0.3,
-            status="warn",
+            0.0,
+            status="fail",
             evidence=evidence,
             notes=["tactile role mapped but no vector arrays loaded"],
         )
 
     score = float(np.mean(parts))
-    status = "ok" if score >= 0.55 else ("warn" if score >= 0.35 else "fail")
+    status = "ok" if score >= 0.75 else ("warn" if score >= 0.5 else "fail")
     return DimensionScore(
         id="tactile",
         name="Tactile usefulness",
